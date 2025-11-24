@@ -102,9 +102,11 @@ class Zombie:
 
 
     def move_to(self, r=0.5):
-
-
-
+        # frame_time를 이용하여 이동 거리 계산
+        distance = RUN_SPEED_PPS * game_framework.free_time
+        self.dir = math.atan2(self.ty - self.y, self.tx - self.x)
+        self.x+=distance *math.cos(self.dir)
+        self.y+=distance *math.sin(self.dir)
 
     def set_random_location(self):
         # 여기를 채우시오.
