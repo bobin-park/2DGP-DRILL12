@@ -89,9 +89,9 @@ class Zombie:
 
 
 
-    def distance_less_than(self, x1, y1, x2, y2, r):
-        # 여기를 채우시오.
-        pass
+    def distance_less_than(self, x1, y1, x2, y2, r):#r은 미터 단위
+        distance2=(x1-x2)**2+(y1+y2)**2
+        return distance2<(PIXEL_PER_METER*r)**2
 
 
 
@@ -106,7 +106,10 @@ class Zombie:
         # frame_time를 이용하여 이동 거리 계산
         self.state='wale'#디버그용 출력
         self.move_little_to(self.tx, self.ty) #목표 지점까지 조금 이동
-        pass
+        if self.distance_less_than(self.tx,self.ty,self.x,self.y,r):
+            return BehaviorTree.SUCCESS #목표 지점에 도착
+        else:
+            return BehaviorTree.RUNNING #아직 도착하지 않음 == 계속 이동
 
 
     def set_random_location(self):
