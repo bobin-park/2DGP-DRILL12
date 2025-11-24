@@ -81,8 +81,11 @@ class Zombie:
 
 
     def set_target_location(self, x=None, y=None):
-        # 여기를 채우시오.
-        pass
+        if x is not None and y is not None:
+            raise ValueError('목표 지점 설정하시오 ')
+        self.tx,self.ty = x,y
+        return BehaviorTree.SUCCESS
+
 
 
 
@@ -99,8 +102,7 @@ class Zombie:
 
 
     def move_to(self, r=0.5):
-        # 여기를 채우시오.
-        pass
+
 
 
 
@@ -125,7 +127,10 @@ class Zombie:
 
 
     def build_behavior_tree(self):
-        al=Action('Set Target Location',self.set_target_location,1000,1000)
-        pass
+        #목표 지점을 설정하는 액션 노드 생성
+        a1=Action('Set Target Location',self.set_target_location,1000,1000)
+        a2=Action('Move To Target',self.move_to,0.5)
+        root= move_to_target_location=Sequence('Move To Target',a1,a2)
+        self.bt=BehaviorTree(root)
 
 
