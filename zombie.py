@@ -57,7 +57,7 @@ class Zombie:
 
     def update(self):
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
-        # fill here
+        self.bt.run() #매 프레임마다 행동트리를 root부터 시작하여 실행
 
 
     def draw(self):
@@ -81,8 +81,8 @@ class Zombie:
 
 
     def set_target_location(self, x=None, y=None):
-        if x is not None and y is not None:
-            raise ValueError('목표 지점 설정하시오 ')
+        if not x or not y:
+            raise ValueError('목표 지점 설정하시오')
         self.tx,self.ty = x,y
         return BehaviorTree.SUCCESS
 
@@ -90,13 +90,13 @@ class Zombie:
 
 
     def distance_less_than(self, x1, y1, x2, y2, r):#r은 미터 단위
-        distance2=(x1-x2)**2+(y1+y2)**2
+        distance2=(x1-x2)**2+(y1-y2)**2
         return distance2<(PIXEL_PER_METER*r)**2
 
 
 
     def move_little_to(self, tx, ty):
-        distance = RUN_SPEED_PPS * game_framework.free_time
+        distance = RUN_SPEED_PPS * game_framework.frame_time
         self.dir = math.atan2(ty - self.y, tx - self.x)
         self.x += distance * math.cos(self.dir)
         self.y += distance * math.sin(self.dir)
@@ -104,7 +104,7 @@ class Zombie:
 
     def move_to(self, r=0.5):
         # frame_time를 이용하여 이동 거리 계산
-        self.state='wale'#디버그용 출력
+        self.state='Walk'#디버그용 출력
         self.move_little_to(self.tx, self.ty) #목표 지점까지 조금 이동
         if self.distance_less_than(self.tx,self.ty,self.x,self.y,r):
             return BehaviorTree.SUCCESS #목표 지점에 도착
@@ -113,8 +113,8 @@ class Zombie:
 
 
     def set_random_location(self):
-        # 여기를 채우시오.
-        pass
+        self.tx,self.ty=random.randint(100,1180),random.randint(100,924)
+        return BehaviorTree.SUCCESS
 
 
     def is_boy_nearby(self, distance):
@@ -137,6 +137,10 @@ class Zombie:
         a1=Action('Set Target Location',self.set_target_location,1000,1000)
         a2=Action('Move To Target',self.move_to,0.5)
         root= move_to_target_location=Sequence('Move To Target',a1,a2)
-        self.bt=BehaviorTree(root)
+
+        a3=Action('Set Random Location',self.set_random_location)
+        root= wander=Sequence('Wander',a3,a2)
+
+        self.bt = BehaviorTree(root)
 
 
