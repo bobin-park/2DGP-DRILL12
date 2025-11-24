@@ -96,17 +96,18 @@ class Zombie:
 
 
     def move_little_to(self, tx, ty):
-        # 여기를 채우시오.
-        pass
-
+        distance = RUN_SPEED_PPS * game_framework.free_time
+        self.dir = math.atan2(ty - self.y, tx - self.x)
+        self.x += distance * math.cos(self.dir)
+        self.y += distance * math.sin(self.dir)
 
 
     def move_to(self, r=0.5):
         # frame_time를 이용하여 이동 거리 계산
-        distance = RUN_SPEED_PPS * game_framework.free_time
-        self.dir = math.atan2(self.ty - self.y, self.tx - self.x)
-        self.x+=distance *math.cos(self.dir)
-        self.y+=distance *math.sin(self.dir)
+        self.state='wale'#디버그용 출력
+        self.move_little_to(self.tx, self.ty) #목표 지점까지 조금 이동
+        pass
+
 
     def set_random_location(self):
         # 여기를 채우시오.
