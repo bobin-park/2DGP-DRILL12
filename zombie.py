@@ -5,6 +5,7 @@ import math
 import game_framework
 import game_world
 from behavior_tree import BehaviorTree, Action, Sequence, Condition, Selector
+import common
 
 
 # zombie Run Speed
@@ -117,13 +118,21 @@ class Zombie:
         return BehaviorTree.SUCCESS
 
 
-    def is_boy_nearby(self, distance):
-        # 여기를 채우시오.
+    def if_boy_nearby(self, distance):
+        if self.distance_less_than(common.boy.x, common.boy.y, self.x, self.y, distance):
+            return BehaviorTree.SUCCESS
+        else:
+            return BehaviorTree.FAIL
         pass
 
 
     def move_to_boy(self, r=0.5):
-        # 여기를 채우시오.
+        self.state = 'Walk'
+        self.move_little_to(common.boy.x, common.boy.y)
+        if self.distance_less_than(common.boy.x, common.boy.y, self.x, self.y, r):
+            return BehaviorTree.SUCCESS
+        else:
+            return BehaviorTree.RUNNING
         pass
 
 
@@ -140,6 +149,10 @@ class Zombie:
 
         a3=Action('Set Random Location',self.set_random_location)
         root= wander=Sequence('Wander',a3,a2)
+
+        c1 = Condition('소년이 근처에 있는가',self.if_boy_nearby,7)
+        a4= Action('소년을 추적',self.move_to_boy)
+        root = chase_boy_if_nearyby = Sequence('가까우면 소년을 추적',c1,a4)
 
         self.bt = BehaviorTree(root)
 
