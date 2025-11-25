@@ -51,9 +51,8 @@ class Zombie:
 
         self.build_behavior_tree()
 
-
-
-
+        self.patrol_locations=[(43,274),(1118,274),(1050,494),(575, 804), (235, 991), (575, 804), (1050, 494),(1118, 274) ]
+        self.loc_no=0
     def get_bb(self):
         return self.x - 50, self.y - 50, self.x + 50, self.y + 50
 
@@ -140,7 +139,9 @@ class Zombie:
 
     def get_patrol_location(self):
         # 여기를 채우시오.
-        pass
+        self.tx,self.ty=self.patrol_locations[self.loc_no]
+        self.loc_no=(self.loc_no+1)%len(self.patrol_locations)
+        return BehaviorTree.SUCCESS
 
 
     def build_behavior_tree(self):
@@ -158,6 +159,10 @@ class Zombie:
 
         # root= chase_if_boy_neary_or_wander('Chase or Wander',chase_boy_if_nearyby,wander)
         root = chase_or_flee = Selector('추적 또는 배회', chase_boy_if_nearyby, wander)
+
+        a5=Action('순찰 위치 가져오기',self.get_patrol_location)
+        root=patrol=Sequence('순찰',a5,a2)
+
         self.bt = BehaviorTree(root)
 
 
