@@ -106,19 +106,19 @@ class Zombie:
         self.tx,self.ty=random.randint(100,1180),random.randint(100,924)
         return BehaviorTree.SUCCESS
 
-    # def check_ball_count(self):
-    #     if self.ball_count >= common.boy.ball_count:
-    #         return BehaviorTree.SUCCESS
-    #     else:
-    #         return BehaviorTree.FAIL
+    def check_ball_count(self):
+        if self.ball_count >= common.boy.ball_count:
+            return BehaviorTree.SUCCESS
+        else:
+            return BehaviorTree.FAIL
 
     def if_boy_nearby(self, distance):
         if self.distance_less_than(common.boy.x, common.boy.y, self.x, self.y, distance):
-            if self.ball_count >= common.boy.ball_count:
-                return BehaviorTree.SUCCESS
-            else:
-                return BehaviorTree.FAIL
-            # return BehaviorTree.SUCCESS
+            # if self.ball_count >= common.boy.ball_count:
+            #     return BehaviorTree.SUCCESS
+            # else:
+            #     return BehaviorTree.FAIL
+            return BehaviorTree.SUCCESS
         else:
             return BehaviorTree.FAIL
         pass
@@ -149,8 +149,10 @@ class Zombie:
         root= wander=Sequence('Wander',a3,a2)
 
         c1 = Condition('소년이 근처에 있는가',self.if_boy_nearby,7)
+        c2= Condition ('공 갯수 비교',self.check_ball_count)
+        root= check_ball=Sequence('공 갯수 비교',c1,c2)
         a4= Action('소년을 추적',self.move_to_boy)
-        root = chase_boy_if_nearyby = Sequence('가까우면 소년을 추적',c1,a4)
+        root = chase_boy_if_nearyby = Sequence('가까우면 소년을 추적',check_ball,a4)
 
         # root= chase_if_boy_neary_or_wander('Chase or Wander',chase_boy_if_nearyby,wander)
         root = chase_or_flee = Selector('추적 또는 배회', chase_boy_if_nearyby, wander)
