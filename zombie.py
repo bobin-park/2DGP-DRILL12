@@ -106,11 +106,11 @@ class Zombie:
         self.tx,self.ty=random.randint(100,1180),random.randint(100,924)
         return BehaviorTree.SUCCESS
 
-    def check_ball_count(self):
-        if self.ball_count >= common.boy.ball_count:
-            return BehaviorTree.SUCCESS
-        else:
-            return BehaviorTree.FAIL
+    # def check_ball_count(self):
+    #     if self.ball_count >= common.boy.ball_count:
+    #         return BehaviorTree.SUCCESS
+    #     else:
+    #         return BehaviorTree.FAIL
 
     def if_boy_nearby(self, distance):
         if self.distance_less_than(common.boy.x, common.boy.y, self.x, self.y, distance):
@@ -138,24 +138,67 @@ class Zombie:
         self.loc_no=(self.loc_no+1)%len(self.patrol_locations)
         return BehaviorTree.SUCCESS
 
+    def zombie_has_more_balls (self):
+        if self.ball_count >= common.boy.ball_count:
+            return BehaviorTree.SUCCESS
+        else:
+            return BehaviorTree.FAIL
+
+    def boy_has_more_balls(self):
+        if self.ball_count < common.boy.ball_count:
+            return BehaviorTree.SUCCESS
+        else:
+            return BehaviorTree.FAIL
+
+    def set_new_target_to_runaway(self):
+        if(common.boy.x>self.x):
+            self.tx=self.x - 200
+        else:
+            self.tx=self.x + 200
+        if (common.boy.y>self.y):
+            self.ty=self.y - 200
+        else:
+            self.ty=self.y + 200
+        print(self.tx,self.ty)
 
     def build_behavior_tree(self):
+        a2 = Action('Move To Target', self.move_to, 0.5)
+        a3 = Action('Set Random Location', self.set_random_location)
+        a4 = Action('소년을 추적', self.move_to_boy)
+        a5 = Action('도망 위치 설정', self.set_new_target_to_runaway)
+
+        c_near = Condition('소년이 근처에 있는가', self.if_boy_nearby, 7)
+        c_boy_gt = Condition('소년의 공 > 좀비의 공', self.boy_has_more_balls)
+        c_me_ge = Condition('좀비의 공 >= 소년의 공', self.zombie_has_more_balls)
+
+        wander = Sequence('Wander', a3, a2)
+        runaway = Sequence('Runaway', c_boy_gt, a5, a2)
+        chase = Sequence('Chase', c_me_ge, a4)
+
+        chase_or_runaway = Selector('추적 또는 도망', runaway, chase)
+        if_near = Sequence('가까우면 판단', c_near, chase_or_runaway)
+        root = Selector('ROOT', if_near, wander)
+
         #목표 지점을 설정하는 액션 노드 생성
-        a1=Action('Set Target Location',self.set_target_location,1000,1000)
-        a2=Action('Move To Target',self.move_to,0.5)
-        root= move_to_target_location=Sequence('Move To Target',a1,a2)
-
-        a3=Action('Set Random Location',self.set_random_location)
-        root= wander=Sequence('Wander',a3,a2)
-
-        c1 = Condition('소년이 근처에 있는가',self.if_boy_nearby,7)
-        c2= Condition ('공 갯수 비교',self.check_ball_count)
-        root= check_ball=Sequence('공 갯수 비교',c1,c2)
-        a4= Action('소년을 추적',self.move_to_boy)
-        root = chase_boy_if_nearyby = Sequence('가까우면 소년을 추적',check_ball,a4)
-
-        # root= chase_if_boy_neary_or_wander('Chase or Wander',chase_boy_if_nearyby,wander)
-        root = chase_or_flee = Selector('추적 또는 배회', chase_boy_if_nearyby, wander)
+        # a1=Action('Set Target Location',self.set_target_location,1000,1000)
+        # a2=Action('Move To Target',self.move_to,0.5)
+        # root= move_to_target_location=Sequence('Move To Target',a1,a2)
+        #
+        # a3=Action('Set Random Location',self.set_random_location)
+        # root= wander=Sequence('Wander',a3,a2)
+        #
+        # c1 = Condition('소년이 근처에 있는가',self.if_boy_nearby,7)
+        # c2= Condition ('공 갯수 비교',self.check_ball_count)
+        # root= check_ball=Sequence('공 갯수 비교',c1,c2)
+        # a4= Action('소년을 추적',self.move_to_boy)
+        # a5 = Action('소년으로부터 도망',self.set_new_target_to_runaway)
+        # root = chase = Sequence('도망', check_ball, a4)
+        # root = runaway= Sequence('도망',check_ball,a5)
+        # root = chase_or_runaway = Selector('추적 또는 도망', chase, runaway)
+        # root = chase_boy_if_nearyby = Sequence('가까우면 소년을 추적',check_ball,chase_or_runaway)
+        #
+        # # root= chase_if_boy_neary_or_wander('Chase or Wander',chase_boy_if_nearyby,wander)
+        # root = chase_or_flee = Selector('추적 또는 배회', chase_boy_if_nearyby, wander)
 
         # a5=Action('순찰 위치 가져오기',self.get_patrol_location)
         # root=patrol=Sequence('순찰',a5,a2)
