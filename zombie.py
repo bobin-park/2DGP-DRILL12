@@ -69,7 +69,7 @@ class Zombie:
         self.font.draw(self.x - 10, self.y + 60, f'{self.ball_count}', (0, 0, 255))
         Zombie.marker_image.draw(self.tx+25, self.ty-25)
 
-
+        draw_circle(self.x, self.y, int(7.0 * PIXEL_PER_METER),255, 0, 0)
 
         draw_rectangle(*self.get_bb())
 
