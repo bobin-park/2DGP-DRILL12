@@ -52,6 +52,8 @@ class Zombie:
         self.build_behavior_tree()
 
 
+
+
     def get_bb(self):
         return self.x - 50, self.y - 50, self.x + 50, self.y + 50
 
@@ -154,6 +156,8 @@ class Zombie:
         a4= Action('소년을 추적',self.move_to_boy)
         root = chase_boy_if_nearyby = Sequence('가까우면 소년을 추적',c1,a4)
 
+        # root= chase_if_boy_neary_or_wander('Chase or Wander',chase_boy_if_nearyby,wander)
+        root = chase_or_flee = Selector('추적 또는 배회', chase_boy_if_nearyby, wander)
         self.bt = BehaviorTree(root)
 
 
