@@ -168,12 +168,12 @@ class Zombie:
         a5 = Action('도망 위치 설정', self.set_new_target_to_runaway)
 
         c_near = Condition('소년이 근처에 있는가', self.if_boy_nearby, 7)
-        c_boy_gt = Condition('소년의 공 > 좀비의 공', self.boy_has_more_balls)
-        c_me_ge = Condition('좀비의 공 >= 소년의 공', self.zombie_has_more_balls)
+        c_boy_more_ball = Condition('소년의 공 > 좀비의 공', self.boy_has_more_balls)
+        c_Z_more_ball = Condition('좀비의 공 >= 소년의 공', self.zombie_has_more_balls)
 
         wander = Sequence('Wander', a3, a2)
-        runaway = Sequence('Runaway', c_boy_gt, a5, a2)
-        chase = Sequence('Chase', c_me_ge, a4)
+        runaway = Sequence('Runaway', c_boy_more_ball, a5, a2)
+        chase = Sequence('Chase', c_Z_more_ball, a4)
 
         chase_or_runaway = Selector('추적 또는 도망', runaway, chase)
         if_near = Sequence('가까우면 판단', c_near, chase_or_runaway)
